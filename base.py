@@ -3,9 +3,7 @@ receitas =
         'nome': 'pipoca doce',
         'ingredientes': ['5 colheres(sopa) de oleo', '5 colheres(sopa) de milho para pipoca', '5 colheres(sopa) de açucar', '3 colheres(sopa) de agua', '1 colher(sopa) de chocolate em po'],
         'utensilios': ['panela', 'bowl', 'espátula', 'pipoqueira'],
-        'modo de preparo': ['Em uma panela, adicione todos os ingredientes e misture delicadamente.', 'Desligue o fogo quando o intervalo de tempo entre os estouros da pipoca diminuir.
-
-'],
+        'modo de preparo': ['Em uma panela, adicione todos os ingredientes e misture delicadamente.', 'Desligue o fogo quando o intervalo de tempo entre os estouros da pipoca diminuir.'],
 
     },
     {
