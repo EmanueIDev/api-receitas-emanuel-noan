@@ -99,7 +99,7 @@ def retorno():
     return{"title" : "Livro de Receitas"}
 
 
-@app.get("/receitas")
+@app.get("/receita")
 def listReceit():
     return {"receitas": [receita["nome"] for receita in receitas.values()]}
 
