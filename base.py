@@ -12,6 +12,7 @@ class Receita(BaseModel):
 app = FastAPI(title="API Livro de Receitas")
 
 # Lista de receitas (agora uma lista de instâncias de Receita)
+'''
 receitas = [
     Receita(
         nome="pipoca doce",
@@ -44,6 +45,7 @@ receitas = [
         modo_de_preparo="Esprema os limões, retirando todo o suco, ou utilize uma centrífuga. Em um jarro, misture o suco de limão, a água e o açúcar até dissolver completamente. Adicione cubos de gelo a gosto e misture. Sirva imediatamente, decorando com fatias de limão, se desejar."
     )
 ]
+'''
 
 # Função para retornar o título da API
 @app.get("/")
