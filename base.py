@@ -74,6 +74,5 @@ def criar_receita(dados: Receita):
     for receita in receitas:
         if receita['nome'].lower() == dados.lower():
             return {"Receita já existente."}
-        else:
-            receitas.append(dados)
-            return dados
+    receitas.append(dados)
+    return dados
