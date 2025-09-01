@@ -1,8 +1,15 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List
+
+class Receita(BaseModel):
+    nome: str
+    ingredientes: List[str]
+    modo_de_preparo: str
 
 app = FastAPI(title="API Livro de Receitas")
 
-# Lista de receitas (lista de dicionários)
+'''
 receitas = [
     {
         'nome': 'pipoca doce',
@@ -99,6 +106,9 @@ receitas = [
         ]
     }
 ]
+'''
+
+receitas: List[Receita] = []
 
 @app.get("/")
 def home():
