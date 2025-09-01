@@ -34,7 +34,7 @@ def receita(receita: str):
 @app.post("/receitas", response_model=Receita, status_code=status.HTTP_201_CREATED)
 def criar_receita(dados: Receita):
 
-    nova receita = dados
+    nova_receita = dados
     receitas.append(nova_receita)
     
     return nova_receita
