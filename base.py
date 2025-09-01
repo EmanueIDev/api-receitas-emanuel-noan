@@ -66,5 +66,10 @@ def receita(receita: str):
 # Função para criar uma nova receita
 @app.post("/receitas", response_model=Receita, status_code=status.HTTP_201_CREATED)
 def criar_receita(dados: Receita):
-    receitas.append(dados)
-    return dados
+
+    for receita in receitas:
+        if receita['nome'].lower() == dados.lower():
+            print(f"Receita já existente.")
+        else:
+            receitas.append(dados)
+            return dados
