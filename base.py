@@ -10,6 +10,35 @@ class Receita(BaseModel):
 app = FastAPI(title="API Livro de Receitas")
 app = FastAPI(title="API")
 
+##FUNÇÕES
+
+@app.get("/")
+def retorno():
+    return{"title" : "Livro de Receitas"}
+
+
+@app.get("/receita")
+def get_todas_receitas():
+    return receitas
+
+
+@app.get("/receitas/{receita}")
+def receita(receita: str):
+    receita = receitas.get(receita.lower())
+
+    if receita:
+        return receita
+    else:
+        return {"Receita não existente"}
+
+@app.post("/receitas", response_model=Receita, status_code=status.HTTP_201_CREATED)
+def criar_receita(dados: Receita):
+
+    nova receita = dados
+    receitas.append(nova_receita)
+    
+    return nova_receita
+
 receitas = {
         'nome': 'pipoca doce',
         'ingredientes': ['5 colheres(sopa) de oleo', '5 colheres(sopa) de milho para pipoca', '5 colheres(sopa) de açucar', '3 colheres(sopa) de agua', '1 colher(sopa) de chocolate em po'],
@@ -106,24 +135,7 @@ receitas = {
 
 receitas: List[Receita] = []
 
-@app.get("/")
-def retorno():
-    return{"title" : "Livro de Receitas"}
-
-
-@app.get("/receita")
-def listReceit():
-    return {"receitas": [receita["nome"] for receita in receitas.values()]}
-
-
-@app.get("/receitas/{receita}")
-def receita(receita: str):
-    receita = receitas.get(receita.lower())
-
-    if receita:
-        return receita
-    else:
-        return {"Receita não existente"}
+        
 
 
 
