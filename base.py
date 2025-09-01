@@ -47,6 +47,8 @@ receitas = [
 ]
 '''
 
+receitas: List[Receita] = []
+
 # Função para retornar o título da API
 @app.get("/")
 def retorno():
@@ -71,7 +73,7 @@ def criar_receita(dados: Receita):
 
     for receita in receitas:
         if receita['nome'].lower() == dados.lower():
-            print(f"Receita já existente.")
+            return {"Receita já existente."}
         else:
             receitas.append(dados)
             return dados
