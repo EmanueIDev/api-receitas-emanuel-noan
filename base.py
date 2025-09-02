@@ -3,10 +3,14 @@ from pydantic import BaseModel
 from typing import List
 
 # Definição do modelo de Receita
-class Receita(BaseModel):
+class ReceitaBase(BaseModel):
     nome: str
     ingredientes: List[str]
     modo_de_preparo: str
+
+# Modelo com ID (resposta da API)
+class Receita(ReceitaBase):
+    id: int
 
 # Instância da aplicação FastAPI
 app = FastAPI(title="API Livro de Receitas")
@@ -48,6 +52,7 @@ receitas = [
 '''
 
 receitas: List[Receita] = []
+proximo_id = 1 
 
 # Função para retornar o título da API
 @app.get("/")
@@ -70,9 +75,16 @@ def receita(receita: str):
 # Função para criar uma nova receita
 @app.post("/receitas", response_model=Receita, status_code=status.HTTP_201_CREATED)
 def criar_receita(dados: Receita):
-
     for receita in receitas:
-        if receita['nome'].lower() == dados.lower():
-            return {"Receita já existente."}
-    receitas.append(dados)
-    return dados
+        if receita.nome.lower() == dados.nome.lower():
+            raise HTTPException(status_code=400, detail="Receita já existente.")
+    nova_receita = Receita(
+        id=proximo_id,
+        nome=dados.nome,
+        ingredientes=dados.ingredientes,
+        modo_de_preparo=dados.modo_de_preparo
+    )
+    receitas.append(nova_receita)
+    proximo_id += 1
+    return nova_receita
+
