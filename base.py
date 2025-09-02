@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException, status
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, Field
+from typing import List, Annotated
 
 # Modelo base
 class ReceitaBase(BaseModel):
     nome: constr(min_length=2, max_length=50)
-    ingredientes: conlist(str, min_items=1, max_items=20)
+    ingredientes: Annotated[list[str], Field(min_items=1, max_items=20)]
     modo_de_preparo: str
 
 # Modelo com ID
