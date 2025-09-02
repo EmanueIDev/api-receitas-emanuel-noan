@@ -5,7 +5,7 @@ from typing import List
 # Modelo base
 class ReceitaBase(BaseModel):
     nome: constr(min_length=2, max_length=50)
-    ingredientes: List[str]
+    ingredientes: conlist(str, min_items=1, max_items=20)
     modo_de_preparo: str
 
 # Modelo com ID
