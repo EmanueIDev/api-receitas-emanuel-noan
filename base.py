@@ -65,3 +65,22 @@ def criar_receita(dados: ReceitaBase):
     proximo_id += 1
 
     return nova_receita
+
+@app.put("/receitas/{id}")
+def update_receita(id: int, dados: ReceitaBase):
+
+    for i in range(len(receitas)):
+        if receitas[i].id == id:
+            receita_atualizada = Receita(
+                id = id,
+                nome = dados.nome,
+                ingredientes = dados.ingredientes,
+                modo_de_preparo = dados.modo_de_preparo,
+            )
+
+            receitas[i] = (receita_atualizada)
+            return receita_atualizada
+
+            return {"mensagem": "Receita não encontrada"}
+
+
