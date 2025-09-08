@@ -4,7 +4,7 @@ from typing import List, Annotated
 
 # Modelo base
 class ReceitaBase(BaseModel):
-    nome: constr(min_length=2, max_length=50)
+    nome: Annotated[str, Field(min_length=2, max_length=50)]
     ingredientes: Annotated[list[str], Field(min_items=1, max_items=20)]
     modo_de_preparo: str
 
