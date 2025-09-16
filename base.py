@@ -84,3 +84,5 @@ def update_receita(id: int, dados: ReceitaBase):
             return {"mensagem": "Receita não encontrada"}
 
 
+
+
