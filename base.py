@@ -102,5 +102,14 @@ def update_receita(id: int, dados: ReceitaBase):
 
     raise HTTPException(status_code=404, detail="Receita não encontrada.")
 
+@app.delete("/receitas/{id}")
+def deletar_receita(id: int):
+    for i in range(len(receitas)):
+        if receitas[i] == id:
+            receitas.pop(i)
+            return {f"O item {i} foi excluído da lista"}
+        else:
+            return {f"O item não existe na lista."}
+
 
 
