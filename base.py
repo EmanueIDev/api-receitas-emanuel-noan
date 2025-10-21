@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import List, Annotated
@@ -12,7 +13,7 @@ proximo_id = 1
 def retorno():
     return {"title": "Livro de Receitas"}
 
-@app.get("/receitas", response_model=List[Receita])
+@app.get("/receitas", response_model=List[Receita], status_code=HTTPStatus.OK)
 def get_todas_receitas():
     return receitas
 
@@ -50,7 +51,7 @@ def criar_receita(dados: ReceitaBase):
 
     return nova_receita
 
-@app.put("/receitas/{id}", response_model=Receita)
+@app.put("/receitas/{id}", response_model=Receita, status_code=HTTPStatus.OK)
 def update_receita(id: int, dados: ReceitaBase):
     if dados.nome.strip() == "" or dados.modo_de_preparo.strip() == "":
         raise HTTPException(
@@ -95,7 +96,7 @@ def update_receita(id: int, dados: ReceitaBase):
 
     raise HTTPException(status_code=404, detail="Receita não encontrada.")
 
-@app.delete("/receitas/{id}")
+@app.delete("/receitas/{id}", status_code=HTTPStatus.OK)
 def deletar_receita(id: int):
     if not receitas:
         raise HTTPException(status_code=404, detail="Não há receitas para excluir.")
