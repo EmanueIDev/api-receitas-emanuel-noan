@@ -2,7 +2,7 @@ from http import HTTPStatus
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import List, Annotated
-from .schema import ReceitaBase, Receita
+from schema import ReceitaBase, Receita
 
 app = FastAPI(title="API Livro de Receitas")
 
@@ -96,7 +96,7 @@ def update_receita(id: int, dados: ReceitaBase):
 
     raise HTTPException(status_code=404, detail="Receita não encontrada.")
 
-@app.delete("/receitas/{id}", status_code=HTTPStatus.OK)
+@app.delete("/receitas/{id}", response_model=Receita , status_code=HTTPStatus.OK)
 def deletar_receita(id: int):
     if not receitas:
         raise HTTPException(status_code=404, detail="Não há receitas para excluir.")
