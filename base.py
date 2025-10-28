@@ -146,7 +146,25 @@ def create_usuario(dados: BaseUsuario):
     proximo_id_usuario += 1
     return novo_usuario
 
+@app.get("/usuarios", status_code=HTTPStatus.CREATED, response_model=List[UsuarioPublic])
+def get_todos_usuarios():
+    for r in usuarios:
+        return r
+    raise HTTPException(status_code=404, detail="Não há usuarios.")
 
+@app.get("/usuarios", status_code=HTTPStatus.CREATED, response_model=UsuarioPublic, status_code=HTTPStatus.OK)
+def get_usuario_por_nome(nome_usuario: str):
+    for r in usuarios:
+        if r.nome == nome_usuario:
+            return r
+    raise HTTPException(status_code=404, detail="Usuario não encontrado.")
+
+@app.get("/usuarios/id/{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
+def get_usuario_por_id(id_usuario: int):
+    for r in usuarios:
+        if r.id == id_usuario:
+            return r
+        raise HTTPException(status_code=404, detail="Usuario não encontrado.")
 
 
   
