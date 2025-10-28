@@ -1,7 +1,10 @@
 from http import HTTPStatus
 from fastapi import FastAPI, HTTPException, status
-from typing import List
-from schema import ReceitaBase, Receita, BaseUsuario, UsuarioPublic, Usuario
+from pydantic import BaseModel, Field
+from typing import List, Annotated
+from schema import ReceitaBase, Receita, BaseUsuario, UsuarioPublic, Usuario, Usuario, BaseUsuario, UsuarioPublic
+
+usuarios: List[Usuario] = []
 
 app = FastAPI(title="API Livro de Receitas")
 
