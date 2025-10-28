@@ -2,14 +2,64 @@ from http import HTTPStatus
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from typing import List, Annotated
-from schema import ReceitaBase, Receita, Usuario, BaseUsuario, UsuarioPublic
-
-usuarios: list[Usuario] = []
+from schema import ReceitaBase, Receita
 
 app = FastAPI(title="API Livro de Receitas")
 
 receitas: List[Receita] = []
 proximo_id = 1
+
+# ======================================================
+# FUNÇÕES AUXILIARES
+# ======================================================
+
+def receita_existe(nome: str) -> bool:
+    """Verifica se já existe uma receita com o mesmo nome."""
+    return any(receita.nome.lower() == nome.lower() for receita in receitas)
+
+def validar_nome(nome: str) -> str:
+    """Valida o nome da receita."""
+    nome = nome.strip()
+    if not nome:
+        raise HTTPException(status_code=400, detail="O nome da receita não pode ser vazio.")
+    if not (2 <= len(nome) <= 50):
+        raise HTTPException(status_code=400, detail="O nome da receita deve ter entre 2 e 50 caracteres.")
+    return nome
+
+def validar_ingredientes(ingredientes: List[str]) -> List[str]:
+    """Valida a lista de ingredientes."""
+    if not ingredientes:
+        raise HTTPException(status_code=400, detail="A receita deve ter pelo menos 1 ingrediente.")
+    if len(ingredientes) > 20:
+        raise HTTPException(status_code=400, detail="A receita não pode ter mais de 20 ingredientes.")
+    if any(ing.strip() == "" for ing in ingredientes):
+        raise HTTPException(status_code=400, detail="Nenhum ingrediente pode estar vazio.")
+    return [ing.strip() for ing in ingredientes]
+
+def validar_modo_de_preparo(modo_de_preparo: str) -> str:
+    """Valida o modo de preparo."""
+    modo_de_preparo = modo_de_preparo.strip()
+    if not modo_de_preparo:
+        raise HTTPException(status_code=400, detail="O modo de preparo não pode ser vazio.")
+    return modo_de_preparo
+
+def obter_receita_por_id(id_receita: int) -> Receita:
+    """Retorna a receita pelo ID ou lança exceção."""
+    for r in receitas:
+        if r.id == id_receita:
+            return r
+    raise HTTPException(status_code=404, detail="Receita não encontrada.")
+
+def obter_receita_por_nome(nome_receita: str) -> Receita:
+    """Retorna a receita pelo nome ou lança exceção."""
+    for r in receitas:
+        if r.nome.lower() == nome_receita.lower():
+            return r
+    raise HTTPException(status_code=404, detail="Receita não encontrada.")
+
+# ======================================================
+# ROTAS
+# ======================================================
 
 @app.get("/")
 def retorno():
@@ -21,95 +71,73 @@ def get_todas_receitas():
 
 @app.get("/receitas/nome/{nome_receita}", response_model=Receita)
 def get_receita_por_nome(nome_receita: str):
-    for r in receitas:
-        if r.nome.lower() == nome_receita.lower():
-            return r
-    raise HTTPException(status_code=404, detail="Receita não encontrada")
+    return obter_receita_por_nome(nome_receita)
 
 @app.get("/receitas/id/{id_receita}", response_model=Receita)
 def get_receita_por_id(id_receita: int):
-    for r in receitas:
-        if r.id == id_receita:
-            return r
-    raise HTTPException(status_code=404, detail="Receita não encontrada")
+    return obter_receita_por_id(id_receita)
 
 @app.post("/receitas", response_model=Receita, status_code=status.HTTP_201_CREATED)
 def criar_receita(dados: ReceitaBase):
     global proximo_id
 
-    for receita in receitas:
-        if receita.nome.lower() == dados.nome.lower():
-            raise HTTPException(status_code=400, detail="Receita já existente.")
+    if receita_existe(dados.nome):
+        raise HTTPException(status_code=400, detail="Já existe uma receita com esse nome.")
+
+    nome = validar_nome(dados.nome)
+    ingredientes = validar_ingredientes(dados.ingredientes)
+    modo_de_preparo = validar_modo_de_preparo(dados.modo_de_preparo)
 
     nova_receita = Receita(
         id=proximo_id,
-        nome=dados.nome,
-        ingredientes=dados.ingredientes,
-        modo_de_preparo=dados.modo_de_preparo
+        nome=nome,
+        ingredientes=ingredientes,
+        modo_de_preparo=modo_de_preparo
     )
 
     receitas.append(nova_receita)
     proximo_id += 1
-
     return nova_receita
 
 @app.put("/receitas/{id}", response_model=Receita, status_code=HTTPStatus.OK)
 def update_receita(id: int, dados: ReceitaBase):
-    if dados.nome.strip() == "" or dados.modo_de_preparo.strip() == "":
-        raise HTTPException(
-            status_code=400, detail="Nome e modo de preparo não podem ser vazios."
-        )
+    receita_existente = obter_receita_por_id(id)
 
-    if any(ingrediente.strip() == "" for ingrediente in dados.ingredientes):
-        raise HTTPException(
-            status_code=400, detail="Nenhum ingrediente pode estar vazio."
-        )
+    nome = validar_nome(dados.nome)
+    ingredientes = validar_ingredientes(dados.ingredientes)
+    modo_de_preparo = validar_modo_de_preparo(dados.modo_de_preparo)
 
-    if not (2 <= len(dados.nome.strip()) <= 50):
-        raise HTTPException(
-            status_code=400,
-            detail="O nome da receita deve ter entre 2 e 50 caracteres.",
-        )
+    # Verifica duplicidade de nome em outras receitas
+    for r in receitas:
+        if r.id != id and r.nome.lower() == nome.lower():
+            raise HTTPException(status_code=400, detail="Já existe outra receita com esse nome.")
 
-    if not (1 <= len(dados.ingredientes) <= 20):
-        raise HTTPException(
-            status_code=400,
-            detail="A receita deve ter entre 1 e 20 ingredientes.",
-        )
+    receita_atualizada = Receita(
+        id=id,
+        nome=nome,
+        ingredientes=ingredientes,
+        modo_de_preparo=modo_de_preparo
+    )
 
-    for i in range(len(receitas)):
-        if receitas[i].id == id:
-            for r in receitas:
-                if r.id != id and r.nome.lower() == dados.nome.lower():
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Já existe uma receita com esse nome.",
-                    )
-                
-            receita_atualizada = Receita(
-                id=id,
-                nome=dados.nome.strip(),
-                ingredientes=[ing.strip() for ing in dados.ingredientes],
-                modo_de_preparo=dados.modo_de_preparo.strip(),
-            )
+    index = receitas.index(receita_existente)
+    receitas[index] = receita_atualizada
+    return receita_atualizada
 
-            receitas[i] = receita_atualizada
-            return receita_atualizada
-
-    raise HTTPException(status_code=404, detail="Receita não encontrada.")
-
-@app.delete("/receitas/{id}", response_model=Receita , status_code=HTTPStatus.OK)
+@app.delete("/receitas/{id}", status_code=HTTPStatus.OK)
 def deletar_receita(id: int):
     if not receitas:
         raise HTTPException(status_code=404, detail="Não há receitas para excluir.")
-    for i in range(len(receitas)):
-            if receitas[i].id == id:
-                receita_removida = receitas.pop(i)
-                return {
-                    "mensagem": f"Receita '{receita_removida.nome}' foi excluída com sucesso.",
-                    "receita_excluida": receita_removida
-                }
-    raise HTTPException(status_code=404, detail="Receita não encontrada.")  
+
+    for i, receita in enumerate(receitas):
+        if receita.id == id:
+            receita_removida = receitas.pop(i)
+            return {
+                "mensagem": f"Receita '{receita_removida.nome}' foi excluída com sucesso.",
+                "receita_excluida": receita_removida
+            }
+
+    raise HTTPException(status_code=404, detail="Receita não encontrada.")
+  
 
 
 
