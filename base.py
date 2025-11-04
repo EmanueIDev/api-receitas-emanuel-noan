@@ -227,25 +227,26 @@ def create_usuario(dados: BaseUsuario):
     proximo_id_usuario += 1
     return novo_usuario
 
-@app.get("/usuarios", status_code=HTTPStatus.CREATED, response_model=List[UsuarioPublic])
+@app.get("/usuarios", response_model=List[UsuarioPublic], status_code=HTTPStatus.OK)
 def get_todos_usuarios():
-    for r in usuarios:
-        return r
-    raise HTTPException(status_code=404, detail="Não há usuarios.")
+    if not usuarios:
+        raise HTTPException(status_code=404, detail="Não há usuários cadastrados.")
+    return usuarios
 
-@app.get("/usuarios", status_code=HTTPStatus.CREATED, response_model=UsuarioPublic, status_code=HTTPStatus.OK)
+
+@app.get("/usuarios/nome/{nome_usuario}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
 def get_usuario_por_nome(nome_usuario: str):
-    for r in usuarios:
-        if r.nome == nome_usuario:
-            return r
-    raise HTTPException(status_code=404, detail="Usuario não encontrado.")
+    for u in usuarios:
+        if u.nome.lower() == nome_usuario.lower():
+            return u
+    raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
 @app.get("/usuarios/id/{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
 def get_usuario_por_id(id_usuario: int):
     for r in usuarios:
         if r.id == id_usuario:
             return r
-        raise HTTPException(status_code=404, detail="Usuario não encontrado.")
+    raise HTTPException(status_code=404, detail="Usuario não encontrado.")
 
 
 @app.put("/usuarios/{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
@@ -284,7 +285,7 @@ def delete_usuario(id: int):
             usuario_removido = usuarios.pop(i)
             return {
                 "mensagem": f"Usuário '{usuario_removido.nome}' foi excluída com sucesso.",
-                "receita_excluida": usuario_removido
+                "usuario_excluido": usuario_removido
             }
 
     raise HTTPException(status_code=404, detail="Usuário não encontrado.")
