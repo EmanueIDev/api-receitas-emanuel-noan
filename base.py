@@ -240,7 +240,7 @@ def get_todos_usuarios():
 @app.get("/usuarios/nome/{nome_usuario}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
 def get_usuario_por_nome(nome_usuario: str):
     for u in usuarios:
-        if u.nome.lower() == nome_usuario.lower():
+        if u.nome_usuario.lower() == nome_usuario.lower():
             return u
     raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
@@ -257,7 +257,7 @@ def update_usuario(id: int, dados: BaseUsuario):
     usuario_existente = obter_usuario_por_id(id)
 
     # Validações (seguindo a mesma ideia das receitas)
-    nome = validar_nome_usuario(dados.nome)
+    nome_usuario = validar_nome_usuario(dados.nome_usuario)
     email = validar_email(dados.email)
     senha = validar_senha(dados.senha)
 
@@ -268,8 +268,9 @@ def update_usuario(id: int, dados: BaseUsuario):
 
     usuario_atualizado = UsuarioPublic(
         id=id,
-        nome=nome,
-        email=email
+        nome_usuario = nome_usuario,
+        email=email,
+        senha = senha
     )
 
     # Atualiza o registro na lista (ou base de dados em memória)
@@ -286,9 +287,6 @@ def delete_usuario(id: int):
     for i, usuario in enumerate(usuarios):
         if usuario.id == id:
             usuario_removido = usuarios.pop(i)
-            return {
-                "mensagem": f"Usuário '{usuario_removido.nome}' foi excluída com sucesso.",
-                "usuario_excluido": usuario_removido
-            }
+            return usuario_removido
 
     raise HTTPException(status_code=404, detail="Usuário não encontrado.")
