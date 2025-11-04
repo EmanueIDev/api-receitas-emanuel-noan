@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import re
 from fastapi import FastAPI, HTTPException, status
 from typing import List
 from schema import ReceitaBase, Receita, BaseUsuario, UsuarioPublic, Usuario, Usuario, BaseUsuario, UsuarioPublic
@@ -89,6 +90,29 @@ def validar_email(email: str) -> str:
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Email inválido.")
     return email
+
+def obter_usuario_por_id(id: int):
+    for usuario in usuarios:
+        if usuario.id == id:
+            return usuario
+    raise HTTPException(
+        status_code=HTTPStatus.NOT_FOUND,
+        detail=f"Usuário com id {id} não encontrado."
+    )
+
+def validar_senha(senha: str) -> str:
+    if not senha:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="A senha não pode estar vazia.")
+    
+    if not re.search(r"[A-Za-z]", senha):
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="A senha deve conter pelo menos uma letra.")
+    
+    if not re.search(r"[0-9]", senha):
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="A senha deve conter pelo menos um número.")
+    
+    return senha
+    
+
 
 
 # ======================================================
@@ -222,3 +246,45 @@ def get_usuario_por_id(id_usuario: int):
         if r.id == id_usuario:
             return r
         raise HTTPException(status_code=404, detail="Usuario não encontrado.")
+
+
+@app.put("/usuarios/{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
+def update_usuario(id: int, dados: BaseUsuario):
+    usuario_existente = obter_usuario_por_id(id)
+
+    # Validações (seguindo a mesma ideia das receitas)
+    nome = validar_nome_usuario(dados.nome)
+    email = validar_email(dados.email)
+    senha = validar_senha(dados.senha)
+
+    # Verifica duplicidade de e-mail em outros usuários
+    for u in usuarios:
+        if u.id != id and u.email.lower() == email.lower():
+            raise HTTPException(status_code=400, detail="Já existe outro usuário com esse e-mail.")
+
+    usuario_atualizado = UsuarioPublic(
+        id=id,
+        nome=nome,
+        email=email
+    )
+
+    # Atualiza o registro na lista (ou base de dados em memória)
+    index = usuarios.index(usuario_existente)
+    usuarios[index] = usuario_atualizado
+
+    return usuario_atualizado
+
+@app.delete("/usuarios/{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
+def delete_usuario(id: int):
+    if not usuarios:
+        raise HTTPException(status_code=404, detail="Não há usuários para excluir.")
+    
+    for i, usuario in enumerate(usuarios):
+        if usuario.id == id:
+            usuario_removido = usuarios.pop(i)
+            return {
+                "mensagem": f"Usuário '{usuario_removido.nome}' foi excluída com sucesso.",
+                "receita_excluida": usuario_removido
+            }
+
+    raise HTTPException(status_code=404, detail="Usuário não encontrado.")
