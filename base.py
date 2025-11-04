@@ -211,7 +211,7 @@ def create_usuario(dados: BaseUsuario):
     """
     global proximo_id_usuario
 
-    nome = validar_nome_usuario(dados.nome)
+    nome_usuario = validar_nome_usuario(dados.nome_usuario)
     email = validar_email(dados.email)
     senha = validar_senha(dados.senha)
 
@@ -221,8 +221,9 @@ def create_usuario(dados: BaseUsuario):
 
     novo_usuario = Usuario(
         id=proximo_id_usuario,
-        nome=nome,
-        email=email
+        nome_usuario = nome_usuario,
+        email=email,
+        senha = senha
     )
 
     usuarios.append(novo_usuario)
