@@ -213,6 +213,8 @@ def create_usuario(dados: BaseUsuario):
 
     nome = validar_nome_usuario(dados.nome)
     email = validar_email(dados.email)
+    senha = validar_senha(dados.senha)
+
 
     if email_existe(email):
         raise HTTPException(status_code=400, detail="Já existe um usuário com esse email.")
@@ -241,7 +243,7 @@ def get_usuario_por_nome(nome_usuario: str):
             return u
     raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
-@app.get("/usuarios/id/{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
+@app.get("/usuarios/id/{id_usuario}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
 def get_usuario_por_id(id_usuario: int):
     for r in usuarios:
         if r.id == id_usuario:
