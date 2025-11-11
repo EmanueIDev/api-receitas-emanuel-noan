@@ -230,6 +230,7 @@ def create_usuario(dados: BaseUsuario):
     proximo_id_usuario += 1
     return novo_usuario
 
+
 @app.get("/usuarios", response_model=List[UsuarioPublic], status_code=HTTPStatus.OK)
 def get_todos_usuarios():
     if not usuarios:
@@ -250,10 +251,6 @@ def get_usuario_por_id(id_usuario: int):
         if r.id == id_usuario:
             return r
     raise HTTPException(status_code=404, detail="Usuario não encontrado.")
-
-@app.put("/usuarios{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
-def update_usuario(id: int, dados: BaseUsuario):
-            
 
 
 @app.put("/usuarios/{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
@@ -282,6 +279,7 @@ def update_usuario(id: int, dados: BaseUsuario):
     usuarios[index] = usuario_atualizado
 
     return usuario_atualizado
+
 
 @app.delete("/usuarios/{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
 def delete_usuario(id: int):
