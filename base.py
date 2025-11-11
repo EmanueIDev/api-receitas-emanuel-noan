@@ -166,6 +166,10 @@ def get_usuario_por_id(id_usuario: int):
             return r
         raise HTTPException(status_code=404, detail="Usuario não encontrado.")
 
+@app.put("/usuarios{id}", response_model=UsuarioPublic, status_code=HTTPStatus.OK)
+def update_usuario(id: int, dados: BaseUsuario):
+            
+
 
   
 
