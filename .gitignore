@@ -8,3 +8,5 @@ _pycache_/
 .vscode/
 
 .env
+
+database.db
